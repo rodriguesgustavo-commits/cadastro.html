@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CEP</title>
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        
+        body {
+            background: JSON-stringify(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+        }
+
+        
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #4a5568;
+        }
+      
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            border-color: #667eea;
+        }
+      
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        button:hover {
+            background-color: #5a67d8;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+       
+        .resultado {
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px solid #edf2f7;
+            text-align: left;
+            font-size: 15px;
+            line-height: 1.6;
+            color: #4a5568;
+            min-height: 50px;
+        }
+
+        .erro {
+            color: #e53e3e;
+            font-weight: bold;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Buscar Endereço</h1>
+        
+        <div class="input-group">
+            <input type="text" id="cep" placeholder="Digite o CEP (ex: 01001000)" maxlength="9">
+        </div>
+        
+        <button onclick="buscarCep()">Pesquisar</button>
+        
+        <div id="resultado" class="resultado">
+            O resultado da busca aparecerá aqui...
+        </div>
+    </div>
+
+    <script>
+        function buscarCep() {
+            
+            const cep = document.getElementById('cep').value.replace(/\D/g, '');
+            const campoResultado = document.getElementById('resultado');
+
+            
+            if (cep.length !== 8) {
+                campoResultado.innerHTML = '<p class="erro">Por favor, digite um CEP válido com 8 dígitos.</p>';
+                return;
+            }
+
+            campoResultado.innerHTML = 'Buscando...';
+
+            fetch(`https://viacep.com.br/ws/${cep}/json/`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.erro) {
+                        campoResultado.innerHTML = '<p class="erro">CEP não encontrado!</p>';
+                    } else {
+                        // Formata a resposta bonita no parágrafo
+                        campoResultado.innerHTML = `
+                            <strong>Logradouro:</strong> ${data.logradouro || 'N/A'}<br>
+                            <strong>Bairro:</strong> ${data.bairro || 'N/A'}<br>
+                            <strong>Cidade:</strong> ${data.localidade}<br>
+                            <strong>Estado:</strong> ${data.uf}
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro na requisição:', error);
+                    campoResultado.innerHTML = '<p class="erro">Erro ao conectar com o serviço. Tente novamente mais tarde.</p>';
+                });
+        }
+    </script>
+
+</body>
+</html>
